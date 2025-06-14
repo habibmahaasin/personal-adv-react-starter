@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# uncomment when using this starter to ur project
+# .env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
