@@ -7,9 +7,9 @@ import {
 import { Suspense } from 'react';
 import { privateRoutes, publicRoutes } from './Lists';
 import type { RouterContext } from './types';
-import NotFound from '../components/layouts/NotFound';
 import PublicLayout from '@/components/layouts/PublicRouteLayouts';
 import PrivateLayout from '@/components/layouts/PrivateRouteLayouts';
+import NotFound from '@/components/layouts/NotFound';
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => (
@@ -24,13 +24,18 @@ export const publicLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: 'public',
   component: PublicLayout,
+  beforeLoad: ({ context, location }) => {
+    if (context.auth.token && location.pathname === '/login') {
+      throw redirect({ to: '/dashboard' });
+    }
+  },
 });
 
 export const privateLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/dashboard',
   beforeLoad: ({ context, location }) => {
-    if (!context.auth?.user) {
+    if (!context.auth.token) {
       throw redirect({ to: '/login', search: { redirect: location.href } });
     }
   },
@@ -57,7 +62,7 @@ const indexRedirectRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: ({ context }) => {
-    if (context.auth?.user) {
+    if (context.auth.token) {
       throw redirect({ to: '/dashboard' });
     }
     throw redirect({ to: '/login' });
